@@ -1,3 +1,5 @@
 pub mod vector;
+pub mod point;
+pub mod ray;
 mod co_ordinate;
-mod point;
+pub mod constants;

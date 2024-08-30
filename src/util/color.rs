@@ -1,4 +1,5 @@
 use std::ops::{Add, Mul};
+use crate::engine::base::constants::constants::random_float;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Color{
@@ -42,6 +43,11 @@ impl Color{
         b = (b * 255f32).clamp(0f32, 255f32);
 
         [r as u8, g as u8, b as u8, 255]
+    }
+
+    #[inline]
+    pub fn random() -> Self {
+        Self::new(random_float(), random_float(), random_float())
     }
 }
 

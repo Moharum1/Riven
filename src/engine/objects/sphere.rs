@@ -1,7 +1,7 @@
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
-use crate::engine::objects::materials::material::{DEFAULT_MAT, Material};
+use crate::engine::objects::materials::material::Material;
 use crate::engine::objects::object::{HitRecord, Object};
 
 pub struct Sphere{

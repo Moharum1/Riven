@@ -61,6 +61,7 @@ impl Point3{
     pub(crate) fn unit_vector(&self) -> Point3 {
         self / self.len()
     }
+
 }
 
 impl CoOrdinate for Point3 {

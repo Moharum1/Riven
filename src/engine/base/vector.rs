@@ -1,6 +1,7 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 use crate::engine::base::co_ordinate::{CoOrdinate, CoOrdinateType};
 use crate::engine::base::constants::constants;
+use crate::engine::base::constants::constants::random_float;
 
 /// A 3D vector with x, y, and z components.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -64,7 +65,7 @@ impl Vector3 {
     ///
     /// A new `Vector3` representing the cross product.
     #[inline]
-    fn cross(&self, other: &Vector3) -> Vector3 {
+    pub(crate) fn cross(&self, other: &Vector3) -> Vector3 {
         Vector3 {
             x: self.y * other.z - self.z * other.y,
             y: self.z * other.x - self.x * other.z,
@@ -79,7 +80,7 @@ impl Vector3 {
     ///
     /// The length as a `f32`.
     #[inline]
-    fn len(&self) -> f32 {
+    pub fn len(&self) -> f32 {
         self.len_squared().sqrt()
     }
 
@@ -154,6 +155,17 @@ impl Vector3 {
         let r_out_parallel = -(1.0 - r_out_perp.len_squared()).abs().sqrt() * *normal;
         r_out_perp + r_out_parallel
     }
+
+    #[inline]
+    pub fn random_in_unit_disk() -> Vector3 {
+        loop {
+            let p = Vector3::new(random_float(), random_float(), 0f32);
+            if p.len_squared() < 1f32{
+                return p;
+            }
+        }
+    }
+
 }
 
 impl Add for Vector3 {

@@ -1,4 +1,3 @@
-use std::ops::Mul;
 use crate::engine::base::constants::constants;
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
@@ -31,6 +30,16 @@ pub struct RGBCamera {
     pixel_sample_scale: f32,
     /// Maximum number of ray bounces into scene
     pub max_depth: i32,
+    /// Vertical view angle (field of view)
+    pub vfov: f32,
+    pub vup : Vector3, // camera relative up direction
+    pub look_from : Point3, // Point camera looking from
+    pub look_at : Point3, // Point camera looking at
+    pub defocus_angle : f32, // Defocus blur angle
+    pub focus_dist : f32,
+    u : Vector3, v : Vector3, w : Vector3, // camera basis frame vector
+    defocus_disk_u : Vector3,
+    defocus_disk_v : Vector3
 }
 
 
@@ -42,21 +51,31 @@ impl RGBCamera {
         // Pixel Sample Scale
         self.pixel_sample_scale = 1.0 / self.samples_per_pixel as f32;
 
+        self.center = self.look_from;
         // ViewPort
-        let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let theta = constants::degrees_to_radians(self.vfov);
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * self.focus_dist;
         let viewport_width = viewport_height * (self.image_width as f32 / self.image_height as f32);
-        self.center = Point3::new(0f32, 0f32, 0f32);
 
-        let viewport_u = Vector3::new(viewport_width, 0f32, 0f32);
-        let viewport_v = Vector3::new(0f32, -viewport_height, 0f32);
+        self.w = (self.look_from - self.look_at).unit_vector();
+        self.u = self.vup.cross(&self.w).unit_vector();
+        self.v = self.w.cross(&self.u);
+
+        let viewport_u = viewport_width * self.u;
+        let viewport_v = viewport_height * -self.v;
 
         self.pixel_delta_u = viewport_u / self.image_width as f32;
         self.pixel_delta_v = viewport_v / self.image_height as f32;
 
         // Calculate the location of the upper left pixel
-        let upper_left_pixel = self.center - Vector3::new(0f32, 0f32, focal_length) - viewport_u / 2f32 - viewport_v / 2f32;
+        let upper_left_pixel = self.center - (self.focus_dist * self.w) - (viewport_u / 2f32) - (viewport_v / 2f32);
         self.pixel00_location = upper_left_pixel + self.pixel_delta_u / 2f32 + self.pixel_delta_v / 2f32;
+
+        // Calculate defocus disk basic vector
+        let defocus_radius = self.focus_dist * constants::degrees_to_radians(self.defocus_angle / 2f32).tan();
+        self.defocus_disk_u = self.u * defocus_radius;
+        self.defocus_disk_v = self.v * defocus_radius;
     }
 
     /// Computes the color of a ray based on its interaction with the world.
@@ -103,6 +122,11 @@ impl RGBCamera {
         Vector3::new(constants::random_float() - 0.5, constants::random_float() - 0.5, 0f32)
     }
 
+    fn defocus_disk_sample(&self) -> Point3 {
+        let p = Vector3::random_in_unit_disk();
+        self.center + self.defocus_disk_u * p.x + self.defocus_disk_v * p.y
+    }
+
     /// Constructs a camera ray originating from the camera center and directed at a randomly sampled point around the pixel location (i, j).
     ///
     /// # Arguments
@@ -118,8 +142,9 @@ impl RGBCamera {
         let pixel_sample = self.pixel00_location + ((i as f32 + offset.x) * self.pixel_delta_u) + ((j as f32 + offset.y) * self.pixel_delta_v);
 
         // The camera ray is the ray from the camera center to the pixel location
-        let ray_direction = pixel_sample - self.center;
-        Ray::new(self.center, ray_direction)
+        let ray_origin = if self.defocus_angle <= 0f32 {self.center} else {self.defocus_disk_sample()};
+        let ray_direction = pixel_sample - ray_origin;
+        Ray::new(ray_origin, ray_direction)
     }
 
     /// Renders the scene by tracing rays through each pixel and computing the color.
@@ -166,6 +191,17 @@ impl Default for RGBCamera {
             pixel_delta_v: Vector3::default(),
             pixel_sample_scale: 1.0,
             max_depth : 10,
+            vfov: 1.0,
+            vup: Default::default(),
+            look_from: Default::default(),
+            look_at: Default::default(),
+            defocus_angle: 0.0,
+            focus_dist: 10.0,
+            u: Default::default(),
+            v: Default::default(),
+            w: Default::default(),
+            defocus_disk_u: Default::default(),
+            defocus_disk_v: Default::default(),
         }
     }
 }

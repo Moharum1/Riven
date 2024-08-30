@@ -3,9 +3,10 @@ use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
+use crate::engine::objects::materials::material::Material;
 
 /// A struct representing a record of a hit in ray tracing.
-#[derive(Clone, Copy, Default)]
+#[derive(Default)]
 pub struct HitRecord {
     /// The point at which the hit occurred.
     pub point: Point3,
@@ -15,6 +16,8 @@ pub struct HitRecord {
     pub t: f32,
     /// A boolean indicating whether the hit was on the front face.
     pub front_face: bool,
+
+    pub mat: Box<dyn Material>,
 }
 
 /// A struct representing a list of objects that can be hit by rays.
@@ -88,6 +91,7 @@ impl Object for HitList {
                 rec.normal = temp_rec.normal;
                 rec.t = temp_rec.t;
                 rec.front_face = temp_rec.front_face;
+                rec.mat = temp_rec.mat.clone();
             }
         }
 

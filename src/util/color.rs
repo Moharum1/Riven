@@ -1,5 +1,6 @@
 use std::ops::{Add, Mul};
 
+#[derive(Debug, Copy, Clone)]
 pub struct Color{
     pub r : f32,
     pub g : f32,
@@ -8,7 +9,7 @@ pub struct Color{
 }
 
 impl Color{
-    pub fn new(r: f32, g: f32, b: f32) -> Self{
+    pub const fn new(r: f32, g: f32, b: f32) -> Self{
         Self{
             r,
             g,
@@ -17,12 +18,30 @@ impl Color{
         }
     }
 
-    pub fn get_rgba(&self) -> [u8; 4]{
-        let r = (self.r * 255f32).clamp(0f32, 255f32) as u8;
-        let g = (self.g * 255f32).clamp(0f32, 255f32) as u8;
-        let b = (self.b * 255f32).clamp(0f32, 255f32) as u8;
+    pub fn default() -> Color {
+        Self::new(0f32, 0f32, 0f32)
+    }
 
-        [r, g, b, 255]
+    #[inline]
+    fn linear_to_gamma(&self, linear_comp : f32) -> f32 {
+        if linear_comp > 0f32 {
+            linear_comp.sqrt()
+        }else {
+            0f32
+        }
+    }
+
+    pub fn get_rgba(&self) -> [u8; 4]{
+
+        let mut r = self.linear_to_gamma(self.r);
+        let mut g = self.linear_to_gamma(self.g);
+        let mut b = self.linear_to_gamma(self.b);
+
+        r = (r * 255f32).clamp(0f32, 255f32);
+        g = (g * 255f32).clamp(0f32, 255f32);
+        b = (b * 255f32).clamp(0f32, 255f32);
+
+        [r as u8, g as u8, b as u8, 255]
     }
 }
 
@@ -46,3 +65,17 @@ impl Add for Color {
         }
     }
 }
+
+impl Mul for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Color{
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+            a: 1f32,
+        }
+    }
+}
+

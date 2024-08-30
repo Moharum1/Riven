@@ -1,18 +1,21 @@
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
+use crate::engine::objects::materials::material::{DEFAULT_MAT, Material};
 use crate::engine::objects::object::{HitRecord, Object};
 
 pub struct Sphere{
     center : Point3,
     radius : f32,
+    mat : Box<dyn Material>,
 }
 
 impl Sphere{
-    pub fn new(center: Point3, radius: f32) -> Self{
+    pub fn new(center: Point3, radius: f32, mat : Box<dyn Material>) -> Self{
         Self{
             center,
             radius,
+            mat,
         }
     }
 }
@@ -42,6 +45,7 @@ impl Object for Sphere {
             rec.point = ray.at(rec.t);
             let outward_normal = (rec.point - self.center) / self.radius;
             rec.set_face_normal(ray, outward_normal);
+            rec.mat = self.mat.clone();
             return true;
         }
 

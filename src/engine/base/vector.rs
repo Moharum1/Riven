@@ -1,5 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 use crate::engine::base::co_ordinate::{CoOrdinate, CoOrdinateType};
+use crate::engine::base::constants::constants;
 
 /// A 3D vector with x, y, and z components.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -13,6 +14,7 @@ pub struct Vector3 {
 impl CoOrdinate for Vector3 {
 
 }
+
 
 impl Vector3 {
 
@@ -100,6 +102,58 @@ impl Vector3 {
     pub(crate) fn unit_vector(&self) -> Vector3 {
         self / self.len()
     }
+
+    pub fn create_random_unit_ray() -> Vector3 {
+        Vector3::new(constants::random_float(), constants::random_float(), constants::random_float())
+    }
+
+    pub fn create_random_ray_with_bound(min : f32, max : f32) -> Vector3 {
+        Vector3::new(constants::ranged_random_float(min, max), constants::ranged_random_float(min, max), constants::ranged_random_float(min, max))
+    }
+
+    #[inline]
+    pub fn random_in_unit_sphere() -> Vector3 {
+        loop {
+            let p = Vector3::create_random_ray_with_bound(-1.0, 1.0);
+            if p.len_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    #[inline]
+    pub fn random_unit_vector() -> Vector3 {
+        Self::random_in_unit_sphere().unit_vector()
+    }
+
+    #[inline]
+    pub fn random_in_hemisphere(normal: &Vector3) -> Vector3 {
+        let in_unit_sphere = Self::random_in_unit_sphere();
+        if in_unit_sphere.dot(normal) > 0.0 {
+            in_unit_sphere
+        } else {
+            -in_unit_sphere
+        }
+    }
+
+    pub(crate) fn near_zero(&self) -> bool {
+        // Return true if the vector is close to zero in all dimensions.
+        let s = 1e-8;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
+
+    #[inline]
+    pub fn reflect(&self , normal: &Vector3) -> Vector3 {
+        *self - normal * 2.0 * self.dot(normal)
+    }
+
+    #[inline]
+    pub fn refract(&self, normal: &Vector3, etai_over_etat: f32) -> Vector3 {
+        let cos_theta = (-*self).dot(normal).min(1.0);
+        let r_out_perp = etai_over_etat * (*self + cos_theta * *normal);
+        let r_out_parallel = -(1.0 - r_out_perp.len_squared()).abs().sqrt() * *normal;
+        r_out_perp + r_out_parallel
+    }
 }
 
 impl Add for Vector3 {
@@ -157,6 +211,23 @@ impl Div<f32> for Vector3 {
     }
 }
 
+impl Mul<Vector3> for f32 {
+    type Output = Vector3;
+
+    /// Multiplies a scalar by a vector.
+    ///
+    /// # Arguments
+    ///
+    /// * `rhs` - The vector to be multiplied.
+    ///
+    /// # Returns
+    ///
+    /// A new `Vector3` resulting from the multiplication.
+    fn mul(self, rhs: Vector3) -> Self::Output {
+        Vector3::new(self * rhs.x, self * rhs.y, self * rhs.z)
+    }
+}
+
 impl Div<f32> for &Vector3 {
     type Output = Vector3;
 
@@ -181,6 +252,19 @@ impl Neg for Vector3 {
             x: -self.x,
             y: -self.y,
             z: -self.z,
+            kind: CoOrdinateType::Vector,
+        }
+    }
+}
+
+impl Mul<f64> for &Vector3 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vector3 {
+            x: self.x * rhs as f32,
+            y: self.y * rhs as f32,
+            z: self.z * rhs as f32,
             kind: CoOrdinateType::Vector,
         }
     }

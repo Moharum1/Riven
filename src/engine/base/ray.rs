@@ -3,6 +3,7 @@ use crate::engine::base::vector::Vector3;
 
 
 /// A struct representing a ray in 3D space.
+#[derive(Debug)]
 pub struct Ray {
     /// The origin point of the ray.
     pub(crate) origin: Point3,
@@ -23,6 +24,10 @@ impl Ray {
     /// A new instance of `Ray`.
     pub fn new(origin: Point3, direction: Vector3) -> Self {
         Self { origin, direction }
+    }
+
+    pub fn default() -> Self {
+        Self { origin: Point3::default(), direction: Vector3::default() }
     }
 
     /// Computes the point at a given distance `t` along the ray.

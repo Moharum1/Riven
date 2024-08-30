@@ -29,24 +29,10 @@ pub struct RGBCamera {
     pixel_delta_v: Vector3,
     /// The scale factor for the sum of pixel samples.
     pixel_sample_scale: f32,
+    /// Maximum number of ray bounces into scene
+    pub max_depth: i32,
 }
 
-impl Mul<Vector3> for f32 {
-    type Output = Vector3;
-
-    /// Multiplies a scalar by a vector.
-    ///
-    /// # Arguments
-    ///
-    /// * `rhs` - The vector to be multiplied.
-    ///
-    /// # Returns
-    ///
-    /// A new `Vector3` resulting from the multiplication.
-    fn mul(self, rhs: Vector3) -> Self::Output {
-        Vector3::new(self * rhs.x, self * rhs.y, self * rhs.z)
-    }
-}
 
 impl RGBCamera {
     /// Initializes the camera parameters.
@@ -83,12 +69,26 @@ impl RGBCamera {
     /// # Returns
     ///
     /// A `Color` representing the color of the ray.
-    fn ray_color(ray: &Ray, world: &HitList) -> Color {
-        let mut rec = HitRecord::default();
-        if world.hit(ray, Interval::new(0f32, constants::INFINITY), &mut rec) {
-            return 0.5f32 * (Color::new(1f32, 1f32, 1f32) + Color::new(rec.normal.x, rec.normal.y, rec.normal.z));
+    fn ray_color(ray: &Ray, world: &HitList, depth : i32) -> Color {
+        if depth <= 0 {
+            return Color::default();
         }
 
+        let mut rec = HitRecord::default();
+        // The interval is used to avoid floating point approximation
+        if world.hit(ray, Interval::new(0.0001f32, constants::INFINITY), &mut rec) {
+            let mut scatter_ray = Ray::default();
+            let mut attenuation = Color::default();
+
+
+            if rec.mat.scatter(&ray, &mut scatter_ray, &rec, &mut attenuation) {
+                return attenuation * Self::ray_color(&scatter_ray, world, depth - 1);
+            }
+
+            return Color::default()
+        }
+
+        // Background color
         let unite_direction = ray.direction.unit_vector();
         let a = (1f32 + unite_direction.y) * 0.5;
         (1f32 - a) * Color::new(1f32, 1f32, 1f32) + a * Color::new(0.5, 0.7, 1.0)
@@ -137,7 +137,7 @@ impl RGBCamera {
 
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(i, j);
-                    pixel_color = pixel_color + Self::ray_color(&ray, &world);
+                    pixel_color = pixel_color + Self::ray_color(&ray, &world, self.max_depth);
                 }
 
                 canvas.write_pixel(i, j, self.pixel_sample_scale * pixel_color);
@@ -165,6 +165,7 @@ impl Default for RGBCamera {
             pixel_delta_u: Vector3::default(),
             pixel_delta_v: Vector3::default(),
             pixel_sample_scale: 1.0,
+            max_depth : 10,
         }
     }
 }

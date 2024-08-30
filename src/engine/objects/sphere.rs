@@ -1,4 +1,4 @@
-use std::process::Output;
+use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::objects::object::{HitRecord, Object};
@@ -15,24 +15,10 @@ impl Sphere{
             radius,
         }
     }
-
-    // pub fn hit(&self, ray: &Ray) -> f32 {
-    //     let oc = self.center - ray.origin;
-    //     let a = ray.direction.len_squared();
-    //     let h = ray.direction.dot(&oc);
-    //     let c = oc.len_squared() - self.radius * self.radius;
-    //     let discriminant = h * h - a * c;
-    //
-    //     return if discriminant < 0f32 {
-    //         -1f32
-    //     } else {
-    //         (h - discriminant.sqrt()) / a
-    //     }
-    // }
 }
 
 impl Object for Sphere {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_t : Interval, rec: &mut HitRecord) -> bool {
         let oc = ray.origin - self.center;
         let a = ray.direction.len_squared();
         let h = oc.dot(&ray.direction);
@@ -44,10 +30,10 @@ impl Object for Sphere {
 
             // First root
             let mut root = (-h - sqrt_d) / a;
-            if root < t_min || root > t_max {
+            if !ray_t.surrounds(root) {
                 // Second root
                 root = (-h + sqrt_d) / a;
-                if root < t_min || root > t_max {
+                if !ray_t.surrounds(root){
                     return false;
                 }
             }

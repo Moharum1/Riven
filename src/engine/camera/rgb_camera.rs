@@ -157,6 +157,7 @@ impl RGBCamera {
         self.initialize();
 
         for i in 0..self.image_width {
+            println!("Scanline remaining: {}", self.image_width - i);
             for j in 0..self.image_height {
                 let mut pixel_color = Color::new(0f32, 0f32, 0f32);
 

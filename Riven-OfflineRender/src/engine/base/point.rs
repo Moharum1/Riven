@@ -7,7 +7,7 @@ use crate::engine::base::vector::Vector3;
 pub struct Point3 {
     pub(crate) x: f32,
     pub(crate) y: f32,
-    pub(crate) z: f32,
+    pub z: f32,
     kind: CoOrdinateType,
 }
 

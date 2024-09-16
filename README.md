@@ -1,14 +1,17 @@
 Riven is a ray tracer with the aim of becoming a path tracer soon enough 
 for now it support :
 
-  - Material :
-    * Metal
-    * DiElectric
+- Lighting models supported
+  - Diffuse Materials :
+      - DieElectric
+      - Metal
+      - Lambetian
    
-  - Shapes :
-     * Circule
+  
+- Shapes :
+    - Circule
       
-  - Sampler
-      * random jittered sampler
+  
+- Samplers :
+  - random jittered sampler
 
-   - 

@@ -1,9 +1,11 @@
-use std::rc::Rc;
+use std::sync::Arc;
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::objects::materials::material::Material;
+use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
+use crate::engine::objects::AnyObject;
+use crate::engine::objects::sphere::Sphere;
 
 /// A struct representing a record of a hit in ray tracing.
 #[derive(Default)]
@@ -17,17 +19,17 @@ pub struct HitRecord {
     /// A boolean indicating whether the hit was on the front face.
     pub front_face: bool,
 
-    pub mat: Box<dyn Material>,
+    pub mat: AnyMaterial,
 }
 
 /// A struct representing a list of objects that can be hit by rays.
 pub struct HitList {
     /// A vector of reference-counted objects that implement the `Object` trait.
-    pub objects: Vec<Rc<dyn Object>>,
+    pub objects: Vec<AnyObject>,
 }
 
 /// A trait representing an object that can be hit by a ray.
-pub trait Object {
+pub trait Object : Sync + Send {
     /// Determines if a ray hits the object within a given range.
     ///
     /// # Arguments
@@ -59,7 +61,7 @@ impl HitList {
     /// # Arguments
     ///
     /// * `object` - A reference-counted object that implements the `Object` trait.
-    pub fn add(&mut self, object: Rc<dyn Object>) {
+    pub fn add(&mut self, object: Arc<Sphere>) {
         self.objects.push(object);
     }
 }

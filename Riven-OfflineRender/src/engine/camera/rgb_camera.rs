@@ -27,7 +27,7 @@ pub struct RGBCamera {
     /// The offset to the pixel below.
     pixel_delta_v: Vector3,
     /// The scale factor for the sum of pixel samples.
-    pixel_sample_scale: f32,
+    pub pixel_sample_scale: f32,
     /// Maximum number of ray bounces into scene
     pub max_depth: i32,
     /// Vertical view angle (field of view)
@@ -45,7 +45,7 @@ pub struct RGBCamera {
 
 impl RGBCamera {
     /// Initializes the camera parameters.
-    fn initialize(&mut self) {
+    pub fn initialize(&mut self) {
         self.image_height = (self.image_width as f32 / self.aspect_ratio) as u32;
 
         // Pixel Sample Scale
@@ -78,6 +78,10 @@ impl RGBCamera {
         self.defocus_disk_v = self.v * defocus_radius;
     }
 
+    pub fn update_orientation(&mut self){
+        self.initialize()
+    }
+
     /// Computes the color of a ray based on its interaction with the world.
     ///
     /// # Arguments
@@ -88,7 +92,7 @@ impl RGBCamera {
     /// # Returns
     ///
     /// A `Color` representing the color of the ray.
-    fn ray_color(ray: &Ray, world: &HitList, depth : i32) -> Color {
+    pub fn ray_color(ray: &Ray, world: &HitList, depth : i32) -> Color {
         if depth <= 0 {
             return Color::default();
         }
@@ -137,7 +141,7 @@ impl RGBCamera {
     /// # Returns
     ///
     /// A `Ray` representing the camera ray.
-    fn get_ray(&self, i: u32, j: u32) -> Ray {
+    pub fn get_ray(&self, i: u32, j: u32) -> Ray {
         let offset = self.sample_square();
         let pixel_sample = self.pixel00_location + ((i as f32 + offset.x) * self.pixel_delta_u) + ((j as f32 + offset.y) * self.pixel_delta_v);
 
@@ -157,9 +161,8 @@ impl RGBCamera {
         self.initialize();
 
         for i in 0..self.image_width {
-            println!("Scanline remaining: {}", self.image_width - i);
             for j in 0..self.image_height {
-                let mut pixel_color = Color::new(0f32, 0f32, 0f32);
+                let mut pixel_color = Color::default();
 
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(i, j);

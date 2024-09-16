@@ -1,6 +1,7 @@
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::objects::materials::material::Material;
+use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
+use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
 use crate::engine::objects::object::HitRecord;
 use crate::util::color::Color;
 
@@ -16,9 +17,8 @@ impl Lambertian {
     }
 }
 
-impl Material for Lambertian{
-    fn scatter(&self, ray_in : &Ray, scattered_ray: &mut Ray, hit_record: &HitRecord, attenuation: &mut Color) -> bool {
-
+impl DiffuseMaterial for Lambertian {
+    fn scatter(&self, ray_in: &Ray, scattered_ray: &mut Ray, hit_record: &HitRecord, attenuation: &mut Color) -> bool {
         let mut scatter_direction = hit_record.normal + Vector3::random_unit_vector();
 
         // Catch degenerate scatter direction
@@ -35,7 +35,7 @@ impl Material for Lambertian{
         return true;
     }
 
-    fn clone_box(&self) -> Box<dyn Material> {
+    fn clone_box(&self) -> AnyMaterial {
         Box::new(Lambertian::new(self.albedo.clone()))
     }
 }

@@ -4,8 +4,12 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/Riven-Physics/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Riven-OfflineRender/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Riven-RealTime/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/Riven-Physics/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/Riven-OfflineRender/target" />
+      <excludeFolder url="file://$MODULE_DIR$/Riven-RealTime/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -1,22 +1,27 @@
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
-use crate::engine::objects::materials::material::Material;
+use crate::engine::base::vector::Vector3;
+use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
 use crate::engine::objects::object::{HitRecord, Object};
 
 pub struct Sphere{
     center : Point3,
     radius : f32,
-    mat : Box<dyn Material>,
+    mat : AnyMaterial,
 }
 
 impl Sphere{
-    pub fn new(center: Point3, radius: f32, mat : Box<dyn Material>) -> Self{
+    pub fn new(center: Point3, radius: f32, mat : AnyMaterial) -> Self{
         Self{
             center,
             radius,
             mat,
         }
+    }
+
+    pub fn normal_at(&self, point : Point3) -> Vector3 {
+        return (self.center - point).unit_vector();
     }
 }
 

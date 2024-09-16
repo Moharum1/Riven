@@ -9,6 +9,7 @@ pub struct Color{
     pub a : f32
 }
 
+
 impl Color{
     pub const fn new(r: f32, g: f32, b: f32) -> Self{
         Self{
@@ -48,6 +49,16 @@ impl Color{
     #[inline]
     pub fn random() -> Self {
         Self::new(random_float(), random_float(), random_float())
+    }
+
+    pub fn to_hexa_value(&self) -> u32 {
+        // Clamping values between 0.0 and 1.0
+        let r = (self.r.clamp(0.0, 1.0) * 255.0) as u32;
+        let g = (self.g.clamp(0.0, 1.0) * 255.0) as u32;
+        let b = (self.b.clamp(0.0, 1.0) * 255.0) as u32;
+
+        // Combining the r, g, b values into a single u32 value in hex
+        (r << 16) | (g << 8) | b
     }
 }
 

@@ -1,9 +1,8 @@
-use std::sync::Arc;
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
+use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
 use crate::engine::objects::AnyObject;
 use crate::engine::objects::sphere::Sphere;
 
@@ -19,7 +18,7 @@ pub struct HitRecord {
     /// A boolean indicating whether the hit was on the front face.
     pub front_face: bool,
 
-    pub mat: AnyMaterial,
+    pub mat: MaterialType,
 }
 
 /// A struct representing a list of objects that can be hit by rays.
@@ -61,7 +60,7 @@ impl HitList {
     /// # Arguments
     ///
     /// * `object` - A reference-counted object that implements the `Object` trait.
-    pub fn add(&mut self, object: Arc<Sphere>) {
+    pub fn add(&mut self, object: Box<dyn Object>) {
         self.objects.push(object);
     }
 }

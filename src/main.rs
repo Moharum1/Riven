@@ -67,7 +67,7 @@ fn main() {
 //     use Riven::engine::base::point::Point3;
 //     use Riven::engine::base::vector::Vector3;
 //     use Riven::engine::camera::rgb_camera::RGBCamera;
-//     use Riven::engine::lighting::diffuse_lighting_model::lambertian::Lambertian;
+//     use Riven::engine::lighting::diffuse_lighting_model::Lambertian::Lambertian;
 //     use Riven::engine::objects::object::HitList;
 //     use Riven::engine::objects::sphere::Sphere;
 //     use Riven::util::color::Color;

@@ -1,27 +1,28 @@
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
+use crate::engine::lighting::diffuse_lighting_model::MaterialType;
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
 use crate::engine::objects::object::HitRecord;
 use crate::util::color::Color;
 
+#[derive(Clone, Default)]
 pub struct Metal {
     albedo: Color,
     fuzz: f32,
 }
 
 impl Metal {
-    pub fn new(albedo: Color, fuzz: f32) -> Metal {
+    pub fn new(r : f32, g : f32, b : f32, fuzz: f32) -> MaterialType {
         if fuzz < 1.0 {
-            Metal {
-                albedo,
+            MaterialType::Metal(Metal {
+                albedo: Color::new(r, g, b),
                 fuzz,
-            }
+            })
         } else {
-            Metal {
-                albedo,
+            MaterialType::Metal(Metal {
+                albedo: Color::new(r, g, b),
                 fuzz: 1.0,
-            }
+            })
         }
     }
 }
@@ -40,8 +41,13 @@ impl DiffuseMaterial for Metal {
         return scattered_ray.direction.dot(&hit_record.normal) > 0.0;
     }
 
-    fn clone_box(&self) -> AnyMaterial {
-        Box::new(Metal::new(self.albedo.clone(), self.fuzz))
+    fn clone_box(&self) -> MaterialType {
+        Metal::new(
+            self.albedo.r,
+            self.albedo.g,
+            self.albedo.b,
+            self.fuzz
+        )
     }
 }
 

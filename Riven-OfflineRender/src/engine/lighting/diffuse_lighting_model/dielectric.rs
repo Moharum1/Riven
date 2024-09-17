@@ -1,19 +1,20 @@
 use crate::engine::base::constants::constants::random_float;
 use crate::engine::base::ray::Ray;
-use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
+use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
 use crate::engine::objects::object::HitRecord;
 use crate::util::color::Color;
 
+#[derive(Clone, Default)]
 pub struct Dielectric {
     refraction_index: f32,
 }
 
 impl Dielectric {
-    pub fn new(refraction_index: f32) -> Dielectric {
-        Dielectric {
+    pub fn new(refraction_index: f32) -> MaterialType {
+       MaterialType::Dielectric(Dielectric {
             refraction_index
-        }
+        })
     }
 
     fn reflectance(&self, cosine: f32, refraction_index: f32) -> f32 {
@@ -46,8 +47,8 @@ impl DiffuseMaterial for Dielectric {
         true
     }
 
-    fn clone_box(&self) -> AnyMaterial {
-        Box::new(Dielectric::new(self.refraction_index))
+    fn clone_box(&self) -> MaterialType {
+        Dielectric::new(self.refraction_index)
     }
 }
 

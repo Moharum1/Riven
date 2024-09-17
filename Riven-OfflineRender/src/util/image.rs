@@ -10,7 +10,7 @@ const ASPECT_RATIO: f32 = 16.0 / 9.0;
 pub struct Canvas{
     pub width  : u32,
     pub height : u32,
-    image : RgbaImage
+    pub(crate) image : RgbaImage
 }
 
 

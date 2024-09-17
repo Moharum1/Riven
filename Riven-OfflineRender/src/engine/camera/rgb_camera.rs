@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use crate::engine::base::constants::constants;
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
@@ -160,19 +161,27 @@ impl RGBCamera {
     pub fn render(&mut self, world: &HitList, mut canvas: Canvas) {
         self.initialize();
 
-        for i in 0..self.image_width {
-            for j in 0..self.image_height {
+        // Compute time taken to render
+        let start = std::time::Instant::now();
+
+        canvas.image
+            .enumerate_pixels_mut()
+            .par_bridge()
+            .for_each(|(x, y, pixel)| {
                 let mut pixel_color = Color::default();
 
                 for _ in 0..self.samples_per_pixel {
-                    let ray = self.get_ray(i, j);
-                    pixel_color = pixel_color + Self::ray_color(&ray, &world, self.max_depth);
+                    let ray = self.get_ray(x, y);
+                    pixel_color = pixel_color + Self::ray_color(&ray, world, self.max_depth);
                 }
 
-                canvas.write_pixel(i, j, self.pixel_sample_scale * pixel_color);
-            }
-        }
+                pixel_color = self.pixel_sample_scale * pixel_color;
+                *pixel = pixel_color.get_rgba().into();
+            });
 
+
+        let duration = start.elapsed();
+        println!("Time taken to render: {:?}", duration);
         canvas.save_image("test.png".to_string());
     }
 }

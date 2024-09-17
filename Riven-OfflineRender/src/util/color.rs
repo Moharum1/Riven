@@ -1,7 +1,7 @@
 use std::ops::{Add, Mul};
 use crate::engine::base::constants::constants::random_float;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Color{
     pub r : f32,
     pub g : f32,

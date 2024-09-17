@@ -5,4 +5,4 @@ use crate::engine::objects::object::Object;
 pub mod sphere;
 pub mod object;
 
-pub type AnyObject = Arc<dyn Object>;
+pub type AnyObject = Box<dyn Object>;

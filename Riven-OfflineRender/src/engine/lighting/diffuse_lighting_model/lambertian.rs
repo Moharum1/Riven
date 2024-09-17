@@ -1,19 +1,20 @@
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::lighting::diffuse_lighting_model::AnyMaterial;
+use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
 use crate::engine::objects::object::HitRecord;
 use crate::util::color::Color;
 
+#[derive(Clone, Default)]
 pub struct Lambertian {
     albedo: Color,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Color) -> Lambertian {
-        Lambertian {
-            albedo
-        }
+    pub fn new(r:f32, g:f32, b: f32) -> MaterialType {
+        MaterialType::Lambertian(Lambertian {
+            albedo: Color::new(r, g, b)
+        })
     }
 }
 
@@ -35,7 +36,11 @@ impl DiffuseMaterial for Lambertian {
         return true;
     }
 
-    fn clone_box(&self) -> AnyMaterial {
-        Box::new(Lambertian::new(self.albedo.clone()))
+    fn clone_box(&self) -> MaterialType {
+        Lambertian::new(
+            self.albedo.r,
+            self.albedo.g,
+            self.albedo.b
+        )
     }
 }

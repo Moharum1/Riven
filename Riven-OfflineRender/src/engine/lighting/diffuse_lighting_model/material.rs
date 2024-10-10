@@ -1,7 +1,6 @@
 use crate::engine::base::ray::Ray;
-use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
-use crate::engine::lighting::diffuse_lighting_model::lambertian::Lambertian;
-use crate::engine::objects::object::HitRecord;
+use crate::engine::lighting::diffuse_lighting_model::MaterialType;
+use crate::engine::objects::hit_record::HitRecord;
 use crate::util::color::Color;
 
 

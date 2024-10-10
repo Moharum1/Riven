@@ -2,20 +2,30 @@ use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
-use crate::engine::objects::object::{HitRecord, Object};
+use crate::engine::bounding_model::aabb::AABB;
+use crate::engine::lighting::diffuse_lighting_model::MaterialType;
+use crate::engine::objects::hit_record::HitRecord;
+use crate::engine::objects::object::GeometricObject;
+use crate::engine::objects::Objects;
+use crate::engine::objects::Objects::Spheres;
 
+#[derive(Clone)]
 pub struct Sphere{
     center : Point3,
     radius : f32,
+    bbox : AABB,
     mat : MaterialType,
 }
 
 impl Sphere{
-    pub fn new(center: Point3, radius: f32, mat : MaterialType) -> Box<Sphere> {
-        Box::new(Self{
+    pub fn new(center: Point3, radius: f32, mat : MaterialType) -> Objects {
+
+        let rvec = Vector3::new(radius, radius, radius);
+
+        Spheres(Self{
             center,
             radius,
+            bbox : AABB::from_points(center - rvec, center + rvec),
             mat,
         })
     }
@@ -25,8 +35,8 @@ impl Sphere{
     }
 }
 
-impl Object for Sphere {
-    fn hit(&self, ray: &Ray, ray_t : Interval, rec: &mut HitRecord) -> bool {
+impl GeometricObject for Sphere {
+    fn hit(&self, ray: &Ray, ray_t : &mut Interval, rec: &mut HitRecord) -> bool {
         let oc = ray.origin - self.center;
         let a = ray.direction.len_squared();
         let h = oc.dot(&ray.direction);
@@ -55,5 +65,9 @@ impl Object for Sphere {
         }
 
         false
+    }
+
+    fn bounding_box(&self) -> AABB {
+        return self.bbox.clone()
     }
 }

@@ -1,4 +1,5 @@
-use std::ops::{Add, Div, Sub};
+use std::ops::{Add, Div, Index, Sub};
+use rand::distr::uniform::SampleBorrow;
 use crate::engine::base::co_ordinate::{CoOrdinate, CoOrdinateType};
 use crate::engine::base::vector::Vector3;
 
@@ -119,6 +120,18 @@ impl Div<f32> for &Point3 {
             y: self.y / scale,
             z: self.z / scale,
             kind: CoOrdinateType::Point,
+        }
+    }
+}
+
+impl Index<i32> for Point3{
+    type Output = f32;
+
+    fn index(&self, index: i32) -> &Self::Output {
+        match index {
+            1 => self.y.borrow(),
+            2 => self.z.borrow(),
+            _ => self.x.borrow()
         }
     }
 }

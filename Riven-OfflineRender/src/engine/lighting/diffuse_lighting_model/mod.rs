@@ -3,7 +3,7 @@ use crate::engine::lighting::diffuse_lighting_model::dielectric::Dielectric;
 use crate::engine::lighting::diffuse_lighting_model::lambertian::Lambertian;
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
 use crate::engine::lighting::diffuse_lighting_model::metal::Metal;
-use crate::engine::objects::object::HitRecord;
+use crate::engine::objects::hit_record::HitRecord;
 use crate::util::color::Color;
 
 pub mod material;

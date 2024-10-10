@@ -4,7 +4,8 @@ use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::objects::object::{HitList, HitRecord, Object};
+use crate::engine::objects::hit_record::HitRecord;
+use crate::engine::objects::Objects;
 use crate::util::color::Color;
 use crate::util::image::Canvas;
 
@@ -93,14 +94,14 @@ impl RGBCamera {
     /// # Returns
     ///
     /// A `Color` representing the color of the ray.
-    pub fn ray_color(ray: &Ray, world: &HitList, depth : i32) -> Color {
+    pub fn ray_color(ray: &Ray, world: &Objects, depth : i32) -> Color {
         if depth <= 0 {
             return Color::default();
         }
 
         let mut rec = HitRecord::default();
         // The interval is used to avoid floating point approximation
-        if world.hit(ray, Interval::new(0.0001f32, constants::INFINITY), &mut rec) {
+        if world.hit(ray, &mut Interval::new(0.0001f32, constants::INFINITY), &mut rec) {
             let mut scatter_ray = Ray::default();
             let mut attenuation = Color::default();
 
@@ -158,7 +159,7 @@ impl RGBCamera {
     ///
     /// * `world` - The world containing objects to be hit by the rays.
     /// * `canvas` - The canvas to write the pixel colors to.
-    pub fn render(&mut self, world: &HitList, mut canvas: Canvas) {
+    pub fn render(&mut self, world: &Objects, mut canvas: Canvas) {
         self.initialize();
 
         // Compute time taken to render
@@ -182,7 +183,7 @@ impl RGBCamera {
 
         let duration = start.elapsed();
         println!("Time taken to render: {:?}", duration);
-        canvas.save_image("test.png".to_string());
+        canvas.save_image("final.png".to_string());
     }
 }
 

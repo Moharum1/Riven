@@ -1,34 +1,11 @@
 use crate::engine::base::interval::Interval;
-use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
-use crate::engine::base::vector::Vector3;
-use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
-use crate::engine::objects::AnyObject;
-use crate::engine::objects::sphere::Sphere;
-
-/// A struct representing a record of a hit in ray tracing.
-#[derive(Default)]
-pub struct HitRecord {
-    /// The point at which the hit occurred.
-    pub point: Point3,
-    /// The normal vector at the hit point.
-    pub normal: Vector3,
-    /// The parameter `t` at which the hit occurred.
-    pub t: f32,
-    /// A boolean indicating whether the hit was on the front face.
-    pub front_face: bool,
-
-    pub mat: MaterialType,
-}
-
-/// A struct representing a list of objects that can be hit by rays.
-pub struct HitList {
-    /// A vector of reference-counted objects that implement the `Object` trait.
-    pub objects: Vec<AnyObject>,
-}
+use crate::engine::bounding_model::aabb::AABB;
+use crate::engine::objects::hit_record::HitRecord;
+use crate::engine::objects::Objects;
 
 /// A trait representing an object that can be hit by a ray.
-pub trait Object : Sync + Send {
+pub trait GeometricObject{
     /// Determines if a ray hits the object within a given range.
     ///
     /// # Arguments
@@ -40,7 +17,19 @@ pub trait Object : Sync + Send {
     /// # Returns
     ///
     /// A boolean indicating whether the ray hit the object.
-    fn hit(&self, ray: &Ray, ray_t : Interval, rec: &mut HitRecord) -> bool;
+    fn hit(&self, ray: &Ray, ray_t : &mut Interval, rec: &mut HitRecord) -> bool;
+
+    fn bounding_box(&self) -> AABB;
+}
+
+
+
+/// A struct representing a list of objects that can be hit by rays.
+#[derive(Clone)]
+pub struct HitList {
+    /// A vector of reference-counted objects that implement the `Object` trait.
+    pub objects: Vec<Objects>,
+    bbox : AABB
 }
 
 impl HitList {
@@ -52,6 +41,7 @@ impl HitList {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
+            bbox: AABB::default(),
         }
     }
 
@@ -60,12 +50,13 @@ impl HitList {
     /// # Arguments
     ///
     /// * `object` - A reference-counted object that implements the `Object` trait.
-    pub fn add(&mut self, object: Box<dyn Object>) {
+    pub fn add(&mut self, object: Objects) {
+        self.bbox = AABB::from_aabb(self.bbox.clone(), object.bounding_box());
         self.objects.push(object);
     }
 }
 
-impl Object for HitList {
+impl GeometricObject for HitList {
     /// Determines if a ray hits any object in the `HitList` within a given range.
     ///
     /// # Arguments
@@ -78,13 +69,13 @@ impl Object for HitList {
     /// # Returns
     ///
     /// A boolean indicating whether the ray hit any object in the list.
-    fn hit(&self, ray: &Ray, ray_t : Interval, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_t : &mut Interval, rec: &mut HitRecord) -> bool {
         let mut temp_rec = HitRecord::default();
         let mut hit_anything = false;
         let mut closest_so_far = ray_t.max;
 
         for object in self.objects.iter() {
-            if object.hit(ray, Interval::new(ray_t.min, closest_so_far), &mut temp_rec) {
+            if object.hit(ray, &mut Interval::new(ray_t.min, closest_so_far), &mut temp_rec) {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
 
@@ -98,17 +89,8 @@ impl Object for HitList {
 
         hit_anything
     }
-}
 
-impl HitRecord {
-    /// Sets the face normal of the hit record based on the ray and outward normal.
-    ///
-    /// # Arguments
-    ///
-    /// * `ray` - The ray that hit the object.
-    /// * `outward_normal` - The normal vector pointing outward from the hit point.
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: Vector3) {
-        self.front_face = ray.direction.dot(&outward_normal) < 0.0;
-        self.normal = if self.front_face { outward_normal } else { -outward_normal };
+    fn bounding_box(&self) -> AABB {
+        self.bbox.clone()
     }
 }

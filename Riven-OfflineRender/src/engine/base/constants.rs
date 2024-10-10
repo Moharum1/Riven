@@ -16,6 +16,12 @@ pub mod constants {
     }
 
     #[inline]
+    pub fn ranged_random_int(min: i32, max: i32) -> i32 {
+        let mut rng = rand::thread_rng();
+        rng.gen_range(min..max)
+    }
+
+    #[inline]
     pub fn random_float() -> f32 {
         ranged_random_float(0.0, 1.0)
     }

@@ -1,4 +1,5 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Index, Mul, Neg, Sub};
+use rand::distr::uniform::SampleBorrow;
 use crate::engine::base::co_ordinate::{CoOrdinate, CoOrdinateType};
 use crate::engine::base::constants::constants;
 use crate::engine::base::constants::constants::random_float;
@@ -278,6 +279,18 @@ impl Mul<f64> for &Vector3 {
             y: self.y * rhs as f32,
             z: self.z * rhs as f32,
             kind: CoOrdinateType::Vector,
+        }
+    }
+}
+
+impl Index<i32> for Vector3{
+    type Output = f32;
+
+    fn index(&self, index: i32) -> &f32 {
+        match index {
+            1 => self.y.borrow(),
+            2 => self.z.borrow(),
+            _ => self.x.borrow()
         }
     }
 }

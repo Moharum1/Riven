@@ -2,7 +2,7 @@ use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
 use crate::engine::lighting::diffuse_lighting_model::MaterialType;
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
-use crate::engine::objects::object::HitRecord;
+use crate::engine::objects::hit_record::HitRecord;
 use crate::util::color::Color;
 
 #[derive(Clone, Default)]
@@ -28,7 +28,7 @@ impl Metal {
 }
 
 impl DiffuseMaterial for Metal {
-    fn scatter(&self, ray_in: &Ray, scattered_ray: &mut Ray, hit_record: &HitRecord, attenuation: &mut Color) -> bool {
+    fn scatter(&self, _: &Ray, scattered_ray: &mut Ray, hit_record: &HitRecord, attenuation: &mut Color) -> bool {
         let mut reflected = hit_record.normal.reflect(&scattered_ray.direction);
         reflected = reflected.unit_vector() + (self.fuzz * Vector3::random_unit_vector());
 

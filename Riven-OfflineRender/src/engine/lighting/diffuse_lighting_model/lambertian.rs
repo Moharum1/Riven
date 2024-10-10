@@ -1,8 +1,8 @@
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
-use crate::engine::lighting::diffuse_lighting_model::{AnyMaterial, MaterialType};
+use crate::engine::lighting::diffuse_lighting_model::MaterialType;
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
-use crate::engine::objects::object::HitRecord;
+use crate::engine::lighting::diffuse_lighting_model::HitRecord;
 use crate::util::color::Color;
 
 #[derive(Clone, Default)]
@@ -19,7 +19,7 @@ impl Lambertian {
 }
 
 impl DiffuseMaterial for Lambertian {
-    fn scatter(&self, ray_in: &Ray, scattered_ray: &mut Ray, hit_record: &HitRecord, attenuation: &mut Color) -> bool {
+    fn scatter(&self, _: &Ray, scattered_ray: &mut Ray, hit_record: &HitRecord, attenuation: &mut Color) -> bool {
         let mut scatter_direction = hit_record.normal + Vector3::random_unit_vector();
 
         // Catch degenerate scatter direction

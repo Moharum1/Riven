@@ -1,19 +1,29 @@
+use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
 use crate::engine::base::vector::Vector3;
 use crate::engine::lighting::diffuse_lighting_model::MaterialType;
 use crate::engine::lighting::diffuse_lighting_model::material::DiffuseMaterial;
 use crate::engine::lighting::diffuse_lighting_model::HitRecord;
+use crate::engine::textures::solid_color::SolidColor;
+use crate::engine::textures::TextureType;
+use crate::engine::textures::Texture;
 use crate::util::color::Color;
 
 #[derive(Clone, Default)]
 pub struct Lambertian {
-    albedo: Color,
+    albedo: TextureType,
 }
 
 impl Lambertian {
     pub fn new(r:f32, g:f32, b: f32) -> MaterialType {
         MaterialType::Lambertian(Lambertian {
-            albedo: Color::new(r, g, b)
+            albedo: SolidColor::from_rgb(r, g, b)
+        })
+    }
+
+    pub fn from_texture(texture : TextureType) -> MaterialType {
+        MaterialType::Lambertian(Lambertian {
+            albedo: texture
         })
     }
 }
@@ -29,18 +39,21 @@ impl DiffuseMaterial for Lambertian {
 
         *scattered_ray = Ray::new(hit_record.point, scatter_direction);
 
-        attenuation.r = self.albedo.r;
-        attenuation.g = self.albedo.g;
-        attenuation.b = self.albedo.b;
+
+        let texture_color = self.albedo.value(hit_record.u, hit_record.v, hit_record.point);
+
+        attenuation.r = texture_color.r;
+        attenuation.g = texture_color.g;
+        attenuation.b = texture_color.b;
 
         return true;
     }
 
     fn clone_box(&self) -> MaterialType {
         Lambertian::new(
-            self.albedo.r,
-            self.albedo.g,
-            self.albedo.b
+            self.albedo.value(0.0, 0.0, Point3::default()).r,
+            self.albedo.value(0.0, 0.0, Point3::default()).g,
+            self.albedo.value(0.0, 0.0, Point3::default()).b
         )
     }
 }

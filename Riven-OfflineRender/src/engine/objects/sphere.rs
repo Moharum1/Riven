@@ -1,3 +1,4 @@
+use crate::engine::base::constants::constants::PI;
 use crate::engine::base::interval::Interval;
 use crate::engine::base::point::Point3;
 use crate::engine::base::ray::Ray;
@@ -33,6 +34,15 @@ impl Sphere{
     pub fn normal_at(&self, point : Point3) -> Vector3 {
         return (self.center - point).unit_vector();
     }
+
+    fn get_sphere_uv(&self, point: Vector3) -> (f32, f32) {
+        let theta = -point.y.acos();
+        let phi = -point.z.atan2(point.x) + PI;
+
+        let u = phi / (2.0 * PI);
+        let v = theta / PI;
+        (u, v)
+    }
 }
 
 impl GeometricObject for Sphere {
@@ -59,8 +69,13 @@ impl GeometricObject for Sphere {
             rec.t = root;
             rec.point = ray.at(rec.t);
             let outward_normal = (rec.point - self.center) / self.radius;
+            let (u, v) = self.get_sphere_uv(outward_normal);
+
             rec.set_face_normal(ray, outward_normal);
             rec.mat = self.mat.clone();
+            rec.v = v;
+            rec.u = u;
+
             return true;
         }
 

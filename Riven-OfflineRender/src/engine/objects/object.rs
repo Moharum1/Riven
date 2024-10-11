@@ -84,6 +84,8 @@ impl GeometricObject for HitList {
                 rec.t = temp_rec.t;
                 rec.front_face = temp_rec.front_face;
                 rec.mat = temp_rec.mat.clone();
+                rec.u = temp_rec.u;
+                rec.v = temp_rec.v.abs();
             }
         }
 

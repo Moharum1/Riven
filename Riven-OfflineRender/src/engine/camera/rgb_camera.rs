@@ -105,7 +105,6 @@ impl RGBCamera {
             let mut scatter_ray = Ray::default();
             let mut attenuation = Color::default();
 
-
             if rec.mat.scatter(&ray, &mut scatter_ray, &rec, &mut attenuation) {
                 return attenuation * Self::ray_color(&scatter_ray, world, depth - 1);
             }

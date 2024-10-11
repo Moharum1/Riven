@@ -16,6 +16,9 @@ pub struct HitRecord {
     pub front_face: bool,
 
     pub mat: MaterialType,
+
+    pub u : f32, // texture coordinates
+    pub v : f32, // texture coordinates
 }
 
 

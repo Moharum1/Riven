@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Index, Mul, Neg, Sub};
 use rand::distr::uniform::SampleBorrow;
-use crate::engine::base::co_ordinate::{CoOrdinate, CoOrdinateType};
+use crate::engine::base::co_ordinate::{CoOrdinateType};
 use crate::engine::base::constants::constants;
 use crate::engine::base::constants::constants::random_float;
 
@@ -12,12 +12,6 @@ pub struct Vector3 {
     pub(crate) z: f32,
     pub(crate) kind: CoOrdinateType,
 }
-
-impl CoOrdinate for Vector3 {
-
-}
-
-
 impl Vector3 {
 
     /// Creates a new `Vector3` with the specified x, y, and z components.
@@ -105,18 +99,26 @@ impl Vector3 {
         self / self.len()
     }
 
-    pub fn create_random_unit_ray() -> Vector3 {
-        Vector3::new(constants::random_float(), constants::random_float(), constants::random_float())
+    pub fn create_random_unit_vector() -> Vector3 {
+        Vector3::new(
+            random_float(),
+            random_float(),
+            random_float()
+        )
     }
 
-    pub fn create_random_ray_with_bound(min : f32, max : f32) -> Vector3 {
-        Vector3::new(constants::ranged_random_float(min, max), constants::ranged_random_float(min, max), constants::ranged_random_float(min, max))
+    pub fn create_random_vector_with_bound(min : f32, max : f32) -> Vector3 {
+        Vector3::new(
+            constants::ranged_random_float(min, max),
+            constants::ranged_random_float(min, max),
+            constants::ranged_random_float(min, max)
+        )
     }
 
     #[inline]
     pub fn random_in_unit_sphere() -> Vector3 {
         loop {
-            let p = Vector3::create_random_ray_with_bound(-1.0, 1.0);
+            let p = Vector3::create_random_vector_with_bound(-1.0, 1.0);
             if p.len_squared() < 1.0 {
                 return p;
             }

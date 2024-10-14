@@ -1,6 +1,6 @@
-use std::ops::{Add, Div, Index, Sub};
+use std::ops::{Add, Div, Index, Mul, Sub};
 use rand::distr::uniform::SampleBorrow;
-use crate::engine::base::co_ordinate::{CoOrdinate, CoOrdinateType};
+use crate::engine::base::co_ordinate::{CoOrdinateType};
 use crate::engine::base::vector::Vector3;
 
 /// A 3D point with x, y, and z components.
@@ -62,10 +62,6 @@ impl Point3{
     pub(crate) fn unit_vector(&self) -> Point3 {
         self / self.len()
     }
-
-}
-
-impl CoOrdinate for Point3 {
 
 }
 
@@ -135,3 +131,28 @@ impl Index<i32> for Point3{
         }
     }
 }
+
+impl Mul<Point3> for f32 {
+    type Output = Point3;
+
+    fn mul(self, rhs: Point3) -> Self::Output {
+        Point3::new(
+            rhs.x * self,
+            rhs.y * self,
+            rhs.z * self
+        )
+    }
+}
+
+impl Add<Point3> for f32 {
+    type Output = Point3;
+
+    fn add(self, rhs: Point3) -> Self::Output {
+        Point3::new(
+            rhs.x + self,
+            rhs.y + self,
+            rhs.z + self
+        )
+    }
+}
+

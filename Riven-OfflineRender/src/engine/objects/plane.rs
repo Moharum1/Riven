@@ -29,7 +29,7 @@ impl Plane{
 }
 
 impl GeometricObject for Plane{
-    fn hit(&self, ray: &Ray, ray_t: &mut Interval, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, _: &mut Interval, rec: &mut HitRecord) -> bool {
 
         let denominator = ray.direction.dot(&self.normal);
         if denominator.abs() < 1e-8 {

@@ -19,10 +19,36 @@ impl AABB{
             z: Default::default(),
         }
     }
-    pub fn from_intervals(x : Interval, y : Interval, z : Interval) -> Self {
+    pub fn from_intervals(x: Interval, y: Interval, z: Interval) -> Self {
+
+        let (xl, yl, zl) = Self::pad_to_min(x, y, z);
+
         Self{
-            x,y,z
+            x : xl,
+            y : yl,
+            z : zl
         }
+    }
+
+    fn pad_to_min(x : Interval, y : Interval, z : Interval) -> (Interval, Interval, Interval) {
+        let delta = 0.0001;
+        let mut xl : Interval = x.to_owned();
+        let mut yl : Interval = y.to_owned();
+        let mut zl : Interval = z.to_owned();
+
+        if x.size() < delta {
+            xl = x.expand(delta);
+        }
+
+        if y.size() < delta{
+            yl  = y.expand(delta);
+        }
+
+        if z.size() < delta{
+            zl = z.expand(delta);
+        }
+
+        return (x, y, z);
     }
 
     pub fn from_points(point1: Point3, point2 : Point3) -> Self {
@@ -42,10 +68,17 @@ impl AABB{
     }
 
     pub fn from_aabb(box1 : AABB, box2 : AABB) -> AABB {
+
+        let x = Interval::from_interval(box1.x, box2.x);
+        let y = Interval::from_interval(box1.y, box2.y);
+        let z = Interval::from_interval(box1.z, box2.z);
+
+        let (xl, yl, zl) = Self::pad_to_min(x, y, z);
+
         Self{
-            x: Interval::from_interval(box1.x, box2.x),
-            y: Interval::from_interval(box1.y, box2.y),
-            z: Interval::from_interval(box1.z, box2.z),
+            x : xl,
+            y : yl,
+            z : zl
         }
     }
 
@@ -65,12 +98,13 @@ impl AABB{
             let mut t0 = (ax.min - ray.origin[axis]) * inv_d;
             let mut t1 = (ax.max - ray.origin[axis]) * inv_d;
 
-            if t0 > t1 {
-                std::mem::swap(&mut t0, &mut t1);  // Swap if t0 is greater than t1
+            if t0 < t1 {
+                ray_t.min = ray_t.min.max(t0);  // Update t_min
+                ray_t.max = ray_t.max.min(t1);  // Update t_max
+            }else{
+                ray_t.min = ray_t.min.max(t1);  // Update t_min
+                ray_t.max = ray_t.max.min(t0);  // Update t_max
             }
-
-            ray_t.min = ray_t.min.max(t0);  // Update t_min
-            ray_t.max = ray_t.max.min(t1);  // Update t_max
 
             // Exit early if there's no hit
             if ray_t.max <= ray_t.min {

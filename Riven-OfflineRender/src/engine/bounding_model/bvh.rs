@@ -17,9 +17,9 @@ pub struct BvhNode{
 
 impl BvhNode{
 
-    pub fn from_world(mut hit_list: HitList) -> Objects {
+    pub fn from_world(hit_list: HitList) -> Objects {
         BVH(Box::new(
-            Self::bvh_new_node(hit_list.objects.clone(), 0, hit_list.objects.len())
+            Self::bvh_new_node(hit_list.objects.to_owned(), 0, hit_list.objects.len())
         ))
     }
 
@@ -44,17 +44,17 @@ impl BvhNode{
 
         let (left, right) = if object_span == 1 {
             // If there's only one object, both children point to the same object
-            (objects[start].clone(),objects[start].clone())
+            (objects[start].to_owned(),objects[start].to_owned())
         } else if object_span == 2 {
             // If there are two objects, the left and right children each take one
-            (objects[start].clone() , objects[start + 1].clone())
+            (objects[start].to_owned() , objects[start + 1].to_owned())
         } else {
             // Sort objects by bounding box along the specified axis
             objects[start..end].sort_by(comparator);
 
             // Split the sorted objects in half and create child nodes
             let mid = start + object_span / 2;
-            let left = BVH(Box::new(BvhNode::bvh_new_node(objects.clone(), start, mid)));
+            let left = BVH(Box::new(BvhNode::bvh_new_node(objects.to_owned(), start, mid)));
             let right = BVH(Box::new(BvhNode::bvh_new_node(objects, mid, end)));
 
             (left, right)
@@ -99,18 +99,44 @@ impl GeometricObject for BvhNode{
             return false
         }
 
-        let hit_left = self.left.hit(ray, ray_t, rec);
-        let hit_right = self.right.hit(
+        let mut hit_left : bool = false;
+        let mut hit_right : bool = false;
+
+        let mut temp_rec = HitRecord::default();
+
+       if self.left.hit(ray, ray_t, &mut temp_rec){
+            rec.point = temp_rec.point;
+            rec.normal = temp_rec.normal;
+            rec.t = temp_rec.t;
+            rec.front_face = temp_rec.front_face;
+            rec.mat = temp_rec.mat.to_owned();
+            rec.u = temp_rec.u;
+            rec.v = temp_rec.v.abs();
+
+           hit_left = true;
+        };
+
+        if self.right.hit(
             ray,
             &mut Interval::new( ray_t.min, if hit_left { rec.t } else { ray_t.max }),
-            rec
-        );
+            &mut temp_rec
+        ){
+            rec.point = temp_rec.point;
+            rec.normal = temp_rec.normal;
+            rec.t = temp_rec.t;
+            rec.front_face = temp_rec.front_face;
+            rec.mat = temp_rec.mat.to_owned();
+            rec.u = temp_rec.u;
+            rec.v = temp_rec.v.abs();
 
-        return hit_right || hit_left
+            hit_right = true
+        };
+
+        hit_right || hit_left
     }
 
     fn bounding_box(&self) -> AABB {
-         self.bbox.clone()
+         self.bbox.to_owned()
     }
 }
 

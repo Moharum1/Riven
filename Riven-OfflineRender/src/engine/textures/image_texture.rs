@@ -56,3 +56,9 @@ impl Texture for ImageTexture {
 
     }
 }
+
+pub mod im_texture {
+
+
+    pub const  NIGHT_EARTH: &str = "G:/Projects/Rust/Riven/Riven-OfflineRender/src/engine/textures/images/nightEarth.jpg";
+}

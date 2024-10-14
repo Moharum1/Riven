@@ -83,6 +83,6 @@ impl GeometricObject for Sphere {
     }
 
     fn bounding_box(&self) -> AABB {
-        return self.bbox.clone()
+        return self.bbox.to_owned()
     }
 }

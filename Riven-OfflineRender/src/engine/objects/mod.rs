@@ -12,6 +12,7 @@ pub mod sphere;
 pub mod object;
 pub mod hit_record;
 pub mod plane;
+mod quad;
 
 #[derive(Clone)]
 pub enum Objects{
